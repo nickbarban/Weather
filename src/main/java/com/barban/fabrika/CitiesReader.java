@@ -15,12 +15,12 @@ public final class CitiesReader {
 		
 	}
 	
-	public static Map<String, String> makeCitiesMap() throws IOException {
+	public static Map<String, String> makeCitiesMap(String filename) throws IOException {
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		reader = new BufferedReader(new FileReader("cities.csv"));
+		reader = new BufferedReader(new FileReader(filename));
 		String tmpStr = reader.readLine();
 		while (tmpStr != null) {
-			System.out.println("CitiesReader: tmpStr: " + tmpStr);
+			//System.out.println("CitiesReader: tmpStr: " + tmpStr);
 			String[] tmpStrArr = tmpStr.split(";");
 			if (tmpStrArr.length > 1) {
 				result.put(tmpStrArr[0], tmpStrArr[1]);

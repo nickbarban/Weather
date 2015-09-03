@@ -6,6 +6,6 @@ import org.codehaus.jackson.JsonProcessingException;
 
 public interface WeatherService {
 	
-	public double getWeather (String city, String countryCode) throws JsonProcessingException, IOException;
+	public double getTemperature (String uri) throws JsonProcessingException, IOException;
 
 }

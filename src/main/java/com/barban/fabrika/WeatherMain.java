@@ -20,63 +20,70 @@ import org.codehaus.jackson.JsonProcessingException;
  *
  */
 public class WeatherMain {
-	
+
 	private static Map<String, String> cities = new LinkedHashMap<String, String>();
 	private static WeatherServiceImpl wsi = new WeatherServiceImpl();
-	private static Map<String, Double> tempMap= new LinkedHashMap<String, Double>();
+	private static Map<String, Double> tempMap = new LinkedHashMap<String, Double>();
 	private static JFrame frame = new JFrame("Cities' temperatures for today");
 	private static TextArea textArea = new TextArea();
-	
-	
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
-        try {
-			cities = CitiesReader.makeCitiesMap();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(null, e1.getMessage(), "CitiesReader IOException", JOptionPane.ERROR_MESSAGE);
-		}
-        
-        if (cities != null) {
-        	for (String cityName : cities.keySet()) {
-        		
-                try {
-                	tempMap.put(cityName, wsi.getWeather(cityName, cities.get(cityName)));
-        		} catch (JsonProcessingException e) {
-        			// TODO Auto-generated catch block
-        			e.printStackTrace();
-        		} catch (IOException e) {
-        			// TODO Auto-generated catch block
-        			e.printStackTrace();
-        		}
-			}
-        }
-        
-        double averageTemp = count(tempMap);
-        
-        StringBuilder sb = new StringBuilder();
-        if (tempMap.size() > 0) {
-        	for (String cityName : tempMap.keySet()) {
-        		sb.append((cityName.length() > 8 ? cityName + ":\t" : cityName + ":\t\t") + tempMap.get(cityName) + "\r\n");
-			}
-        }
-        sb.append("------------------------------------------------------------\r\n");
-        sb.append("Average: \t\t" + new BigDecimal(averageTemp).setScale(2, RoundingMode.HALF_UP) + "\r\n");
-        
-        textArea.setText(sb.toString());
-        frame.getContentPane().add(textArea);
-        frame.setSize(400, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
 
+	public static void main(String[] args) {
+		// System.out.println( "Hello World!" );
+		try {
+			cities = CitiesReader.makeCitiesMap("cities.csv");
+		} catch (IOException e1) {
+			JOptionPane.showMessageDialog(null, e1.getMessage(), "CitiesReader Exception", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
+
+		if (cities != null) {
+			for (String cityName : cities.keySet()) {
+
+				String uri = "http://api.openweathermap.org/data/2.5/weather?q=" + cityName + "," + cities.get(cityName)
+						+ "&units=metric";
+				try {
+					tempMap.put(cityName, wsi.getTemperature(uri));
+				} catch (NumberFormatException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - JsonProcessingException", JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - NullPointerException", JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - IOException", JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+		double averageTemp = count(tempMap);
+
+		StringBuilder sb = new StringBuilder();
+		if (tempMap.size() > 0) {
+			for (String cityName : tempMap.keySet()) {
+				sb.append((cityName.length() > 8 ? cityName + ":\t" : cityName + ":\t\t") + tempMap.get(cityName)
+						+ "\r\n");
+			}
+		}
+		sb.append("------------------------------------------------------------\r\n");
+		sb.append("Average: \t\t" + new BigDecimal(averageTemp).setScale(2, RoundingMode.HALF_UP) + "\r\n");
+
+		textArea.setText(sb.toString());
+		frame.getContentPane().add(textArea);
+		frame.setSize(400, 400);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
 
 	private static double count(Map<String, Double> map) {
 		double sum = 0;
 		for (Double temp : map.values()) {
 			sum += temp;
 		}
-		return sum/map.size();
+		return sum / map.size();
 	}
 }
