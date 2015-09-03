@@ -44,25 +44,24 @@ public class WeatherMain {
 				try {
 					tempMap.put(cityName, wsi.getTemperature(uri));
 				} catch (NumberFormatException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - NumberFormatException", JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, cityName + e.getMessage(), "NumberFormatException", JOptionPane.ERROR_MESSAGE);
+					//e.printStackTrace();
 				} catch (JsonProcessingException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - JsonProcessingException", JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, cityName + e.getMessage(), "JsonProcessingException", JOptionPane.ERROR_MESSAGE);
+					//e.printStackTrace();
 				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - NullPointerException", JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "No such city: " + cityName, "NullPointerException", JOptionPane.ERROR_MESSAGE);
+					
 				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "WeatherServiceImpl.getTemperature - IOException", JOptionPane.ERROR_MESSAGE);
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, cityName + e.getMessage(), "IOException", JOptionPane.ERROR_MESSAGE);
+					//e.printStackTrace();
 				}
-
 			}
 		}
-
-		double averageTemp = count(tempMap);
-
+		
 		StringBuilder sb = new StringBuilder();
+
+				
 		if (tempMap.size() > 0) {
 			for (String cityName : tempMap.keySet()) {
 				sb.append((cityName.length() > 8 ? cityName + ":\t" : cityName + ":\t\t") + tempMap.get(cityName)
@@ -70,7 +69,11 @@ public class WeatherMain {
 			}
 		}
 		sb.append("------------------------------------------------------------\r\n");
-		sb.append("Average: \t\t" + new BigDecimal(averageTemp).setScale(2, RoundingMode.HALF_UP) + "\r\n");
+		
+		if (tempMap.size() > 0) {
+			double averageTemp = count(tempMap);
+			sb.append("Average: \t\t" + new BigDecimal(averageTemp).setScale(2, RoundingMode.HALF_UP) + "\r\n");
+		} else sb.append("No information about cities' temperatures");
 
 		textArea.setText(sb.toString());
 		frame.getContentPane().add(textArea);
